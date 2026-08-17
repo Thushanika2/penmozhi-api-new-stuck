@@ -1,0 +1,80 @@
+from flask import Blueprint
+
+from app.controllers import auth_controller as ctrl
+from app.extensions import limiter
+from app.middleware import jwt_required_user
+
+auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
+
+
+@auth_bp.route("/register", methods=["POST"])
+@limiter.limit("10 per minute")
+def register():
+    return ctrl.register()
+
+
+@auth_bp.route("/login", methods=["POST"])
+@limiter.limit("20 per minute")
+def login():
+    return ctrl.login()
+
+
+@auth_bp.route("/logout", methods=["POST"])
+@jwt_required_user
+def logout():
+    return ctrl.logout()
+
+
+@auth_bp.route("/profile", methods=["GET"])
+@jwt_required_user
+def profile():
+    return ctrl.profile()
+
+
+@auth_bp.route("/profile", methods=["PATCH"])
+@jwt_required_user
+def update_profile():
+    return ctrl.update_profile()
+
+
+@auth_bp.route("/account", methods=["DELETE"])
+@jwt_required_user
+def delete_account():
+    return ctrl.delete_account()
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+@limiter.limit("30 per minute")
+def refresh():
+    return ctrl.refresh()
+
+
+@auth_bp.route("/forgot-password", methods=["POST"])
+@limiter.limit("5 per minute")
+def forgot_password():
+    return ctrl.forgot_password()
+
+
+@auth_bp.route("/reset-password", methods=["POST"])
+@limiter.limit("10 per minute")
+def reset_password():
+    return ctrl.reset_password()
+
+
+@auth_bp.route("/mode", methods=["PATCH"])
+@jwt_required_user
+def update_mode():
+    return ctrl.update_mode()
+
+
+@auth_bp.route("/app-lock", methods=["PATCH"])
+@jwt_required_user
+def update_app_lock():
+    return ctrl.update_app_lock()
+
+
+@auth_bp.route("/app-lock/verify", methods=["POST"])
+@jwt_required_user
+@limiter.limit("5 per minute")
+def verify_app_lock():
+    return ctrl.verify_app_lock()
