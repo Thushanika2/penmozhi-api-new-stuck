@@ -28,3 +28,7 @@ Thumbs.db
 
 *.log
 instance/
+
+node_modules/
+npm-debug.log*
+coverage/
