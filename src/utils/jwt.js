@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { config } = require("../config/db");
+const { config } = require("../config/config");
 
 function issueTokens(user) {
   const subject = String(user.id);

@@ -1,6 +1,6 @@
 const mysql = require("mysql2/promise");
 const mongoose = require("mongoose");
-const { config } = require("../src/config/db");
+const { config } = require("../src/config/config");
 const { Counter, ...models } = require("../src/models");
 
 const tableToModel = {

@@ -3,7 +3,7 @@ const { createPrivacyRequest, recordConsent } = require("../services/privacy");
 const { addDays, dateOnly, diffDays, parseDateOnly } = require("../utils/dates");
 const { errorResponse, messageResponse, validationErrors } = require("../utils/response");
 const { publicUser, serialize } = require("../utils/serialize");
-const { config } = require("../config/db");
+const { config } = require("../config/config");
 
 async function accountExport(req, res) {
   await createPrivacyRequest(req.user, "export");

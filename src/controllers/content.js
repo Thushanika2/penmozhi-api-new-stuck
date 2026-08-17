@@ -1,6 +1,6 @@
 const crypto = require("node:crypto");
 const { EducationalResource, EducationVideo, ForumComment, ForumPost } = require("../models");
-const { config } = require("../config/db");
+const { config } = require("../config/config");
 const { dateOnly, parseDateOnly } = require("../utils/dates");
 const { errorResponse, messageResponse, validationErrors } = require("../utils/response");
 const { serialize } = require("../utils/serialize");

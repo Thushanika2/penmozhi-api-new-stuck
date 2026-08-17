@@ -1,16 +1,16 @@
-const { createApp } = require("./app");
-const { config, validateServerConfig, connectDatabase } = require("./config/db");
+const { startServer } = require("./app");
+const { config, validateServerConfig } = require("./config/config");
+const { connectDatabase } = require("./config/db");
 
 async function start() {
   validateServerConfig();
-  await connectDatabase();
-  const app = createApp();
-  return app.listen(config.port, () => console.log(`Penmozhi API listening on port ${config.port}`));
+  await connectDatabase(config.mongodbUri);
+  return startServer();
 }
 
 if (require.main === module) {
   start().catch((error) => {
-    console.error("Unable to start Penmozhi API:", error.message);
+    console.error("Unable to start Penmozhi API:", error);
     process.exitCode = 1;
   });
 }

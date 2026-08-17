@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const { config } = require("./config/db");
+const { config } = require("./config/config");
+const { isDatabaseConnected } = require("./config/db");
 const { errorResponse } = require("./utils/response");
 
 function createApp() {
@@ -23,9 +24,7 @@ function createApp() {
   });
 
   app.get("/api/health", async (_req, res) => {
-    // The server module adds the live MongoDB state to this handler at runtime.
-    const mongoose = require("mongoose");
-    if (mongoose.connection.readyState === 1) return res.json({ status: "ok", database: "connected" });
+    if (isDatabaseConnected()) return res.json({ status: "ok", database: "connected" });
     return res.status(503).json({ status: "error", database: "disconnected", error: "Database connection failed.", detail: "MongoDB is not connected." });
   });
 
@@ -57,4 +56,24 @@ function createApp() {
   return app;
 }
 
-module.exports = { createApp };
+function startServer() {
+  const app = createApp();
+
+  try {
+    const server = app.listen(config.port);
+    server.on("listening", () => {
+      const address = server.address();
+      const port = typeof address === "object" && address ? address.port : config.port;
+      console.log(`Penmozhi API server is running on port ${port}.`);
+    });
+    server.on("error", (error) => {
+      console.error("Penmozhi API server error:", error);
+    });
+    return server;
+  } catch (error) {
+    console.error("Unable to start Penmozhi API server:", error);
+    throw error;
+  }
+}
+
+module.exports = { createApp, startServer };
