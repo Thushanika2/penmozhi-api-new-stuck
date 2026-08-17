@@ -6,7 +6,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "node --watch src/app.js",
+    "dev": "nodemon src/app.js",
     "migrate:mysql": "node scripts/migrate-mysql-to-mongodb.js",
     "check": "node scripts/check-source.js",
     "test": "node --test"
@@ -24,7 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0",
     "multer": "^2.0.2",
-    "mysql2": "^3.14.3"
-  },
-  "devDependencies": {}
+    "mysql2": "^3.14.3",
+    "nodemon": "^3.1.14"
+  }
 }
