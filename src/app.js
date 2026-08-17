@@ -2,8 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const { config } = require("./config/config");
-const { isDatabaseConnected } = require("./config/db");
+const { config, validateServerConfig } = require("./config/config");
+const { connectDatabase, isDatabaseConnected } = require("./config/db");
 const { errorResponse } = require("./utils/response");
 
 function createApp() {
@@ -56,10 +56,13 @@ function createApp() {
   return app;
 }
 
-function startServer() {
-  const app = createApp();
+const app = createApp();
 
+async function startServer() {
   try {
+    validateServerConfig();
+    await connectDatabase(config.mongodbUri);
+
     const server = app.listen(config.port);
     server.on("listening", () => {
       const address = server.address();
@@ -71,9 +74,30 @@ function startServer() {
     });
     return server;
   } catch (error) {
-    console.error("Unable to start Penmozhi API server:", error);
+    console.error("Failed to start Penmozhi API:", error);
     throw error;
   }
 }
 
-module.exports = { createApp, startServer };
+// Start the API when this file is executed directly. When it is imported by a
+// hosting platform or tests, the Express app is exported without opening a
+// second listener.
+if (require.main === module && !process.env.VERCEL) {
+  startServer().catch(() => {
+    process.exitCode = 1;
+  });
+}
+
+// Vercel can use the exported Express app and connect during cold start.
+if (process.env.VERCEL) {
+  connectDatabase(config.mongodbUri).catch((error) => {
+    console.error("Database connection error:", error);
+  });
+}
+
+// CommonJS export keeps this project compatible with its existing route and
+// test files while also exposing the app directly to hosting platforms.
+module.exports = app;
+module.exports.app = app;
+module.exports.createApp = createApp;
+module.exports.startServer = startServer;

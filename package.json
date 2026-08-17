@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Penmozhi API migrated from Flask/MySQL to Express/MongoDB",
-  "main": "src/server.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
     "migrate:mysql": "node scripts/migrate-mysql-to-mongodb.js",
     "check": "node scripts/check-source.js",
     "test": "node --test"
