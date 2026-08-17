@@ -20,21 +20,19 @@ async function register(req, res) {
   const email = String(req.body.email).trim().toLowerCase();
   if (await UserProfile.exists({ email })) return validationErrors(res, [["validation.email_exists", "Email address already exists."]]);
   const language = String(req.body.language_preference || "english").trim().toLowerCase();
+  let createdUser = null;
   try {
     const user = await UserProfile.create({ full_name: String(req.body.full_name).trim(), email, password_hash: await hashPassword(req.body.password), language_preference: language, role: "user", onboarding_completed: false });
+    createdUser = user;
     const healthProfile = await HealthProfile.create({ profile_id: user.id });
     await PCOSDisorderStatus.create({ health_profile_id: healthProfile.id, disorder_type: "none", diagnosis_status: "not_diagnosed" });
     await recordSignupConsents(user.id);
     return res.status(201).json({ message: "User registered successfully.", user: publicUser(user), health_profile: serialize(healthProfile, ["last_period_start", "last_notified_for", "created_at", "updated_at"]) });
   } catch (error) {
-    if (userCleanupId(error)) await UserProfile.deleteOne({ email });
+    if (createdUser?.id) await UserProfile.deleteOne({ id: createdUser.id });
     console.error(error);
     return errorResponse(res, "server.internal_error", "An internal server error occurred.", 500);
   }
-}
-
-function userCleanupId(error) {
-  return Boolean(error);
 }
 
 async function login(req, res) {

@@ -37,7 +37,7 @@ const dateOnlyFields = new Set([
 ]);
 
 function mysqlOptions() {
-  if (process.env.MYSQL_URL || process.env.DATABASE_URL) return { uri: process.env.MYSQL_URL || process.env.DATABASE_URL };
+  if (process.env.MYSQL_URL || process.env.DATABASE_URL) return process.env.MYSQL_URL || process.env.DATABASE_URL;
   return { host: process.env.DB_HOST || process.env.MYSQLHOST, port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306), user: process.env.DB_USER || process.env.MYSQLUSER, password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD, database: process.env.DB_NAME || process.env.MYSQLDATABASE };
 }
 

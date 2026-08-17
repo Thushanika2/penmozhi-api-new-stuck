@@ -34,7 +34,7 @@ const config = {
   refreshTokenDays: number(process.env.JWT_REFRESH_TOKEN_EXPIRES_DAYS, 30),
   corsOrigins: process.env.CORS_ORIGINS || "*",
   clientAppUrl: process.env.CLIENT_APP_URL || "http://localhost:3000",
-  debug: boolean(process.env.NODE_DEBUG, false),
+  debug: boolean(process.env.PENMOZHI_DEBUG, false),
   maxContentLength: number(process.env.MAX_CONTENT_LENGTH, 210 * 1024 * 1024),
   adminName: process.env.ADMIN_NAME || "",
   adminEmail: process.env.ADMIN_EMAIL || "",

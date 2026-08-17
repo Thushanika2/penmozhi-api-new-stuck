@@ -1,11 +1,11 @@
 const express = require("express");
 const controller = require("../controllers/additional");
-const { rolesRequired } = require("../middleware/auth");
+const { authenticate, rolesRequired } = require("../middleware/auth");
 
 const router = express.Router();
 const user = rolesRequired("user");
 
-router.use("/api/account", user);
+router.use("/api/account", authenticate);
 router.get("/api/account/export", controller.accountExport);
 router.delete("/api/account", require("../controllers/auth").deleteAccount);
 
