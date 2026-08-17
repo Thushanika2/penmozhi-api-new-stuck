@@ -4,4 +4,5 @@ const express = require("express");
 // one place, just as the Flask blueprint registry did in the legacy service.
 const router = express.Router();
 router.use("/api/auth", require("./auth"));
+router.use(require("./core"));
 module.exports = router;
