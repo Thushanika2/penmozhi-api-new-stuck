@@ -26,7 +26,7 @@ function safeEqual(left, right) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
-async function verifyWerkzeugHash(stored, password) {
+async function verifyPasswordHash(stored, password) {
   if (!stored || typeof stored !== "string") return false;
 
   // Older deployments may already contain bcrypt hashes.
@@ -64,4 +64,4 @@ async function verifyWerkzeugHash(stored, password) {
   return false;
 }
 
-module.exports = { hashPassword, verifyWerkzeugHash };
+module.exports = { hashPassword, verifyPasswordHash };

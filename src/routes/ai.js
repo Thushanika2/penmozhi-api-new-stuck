@@ -1,0 +1,11 @@
+const express = require("express");
+const controller = require("../controllers/ai");
+const { rolesRequired } = require("../middleware/auth");
+const router = express.Router();
+router.use("/api/ai-assistant", rolesRequired("user"));
+router.post("/api/ai-assistant/chat", controller.chat);
+router.get("/api/ai-assistant/recommendations", controller.getRecommendations);
+router.get("/api/ai-assistant/history", controller.history);
+router.get("/api/ai-assistant/sessions", controller.sessions);
+router.get("/api/ai-assistant/chats", controller.chats);
+module.exports = router;

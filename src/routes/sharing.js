@@ -1,0 +1,20 @@
+const express = require("express");
+const controller = require("../controllers/sharing");
+const { rolesRequired } = require("../middleware/auth");
+
+const router = express.Router();
+const user = rolesRequired("user");
+router.post("/api/invitations/send", user, controller.send);
+router.post("/api/invitations/verify", user, controller.verify);
+router.post("/api/invitations/resend", user, controller.resend);
+router.post("/api/cycle-shares/invites", user, controller.createInvite);
+router.post("/api/cycle-shares/connect", user, controller.connect);
+router.get("/api/cycle-shares/connections", user, controller.list);
+router.post("/api/cycle-shares/connections/:connection_id/disconnect", user, controller.disconnect);
+router.get("/api/cycle-shares/connections/:connection_id/view", user, controller.view);
+router.get("/api/cycle-shares", user, controller.legacyDisabled);
+router.post("/api/cycle-shares", user, controller.legacyDisabled);
+router.delete("/api/cycle-shares/:share_id", user, controller.legacyDisabled);
+router.post("/api/cycle-shares/:share_id/accept", user, controller.legacyDisabled);
+router.get("/api/cycle-shares/:share_id/view", user, controller.legacyDisabled);
+module.exports = router;

@@ -1,4 +1,4 @@
 // Compatibility aliases used by migration scripts and older controller code.
-const { hashPassword, verifyWerkzeugHash } = require("./password");
+const { hashPassword, verifyPasswordHash } = require("./password");
 
-module.exports = { hashPassword, checkPassword: verifyWerkzeugHash };
+module.exports = { hashPassword, checkPassword: verifyPasswordHash };

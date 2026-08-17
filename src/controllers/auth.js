@@ -4,7 +4,7 @@ const { HealthProfile, PasswordResetToken, PCOSDisorderStatus, UserProfile } = r
 const { createPrivacyRequest, recordSignupConsents } = require("../services/privacy");
 const { addDays, parseDateOnly } = require("../utils/dates");
 const { issueTokens, verifyToken } = require("../utils/jwt");
-const { hashPassword, verifyWerkzeugHash } = require("../utils/password");
+const { hashPassword, verifyPasswordHash } = require("../utils/password");
 const { publicUser, serialize } = require("../utils/serialize");
 const { LANGUAGES, TRACKING_MODES, requiredBody, requiredString, validEmail, validateLogin, validateRegister } = require("../utils/validation");
 const { errorResponse, messageResponse, validationErrors } = require("../utils/response");
@@ -42,7 +42,7 @@ async function login(req, res) {
   const errors = validateLogin(req.body);
   if (errors.length) return schemaError(res, errors);
   const user = await UserProfile.findOne({ email: String(req.body.email).trim().toLowerCase() });
-  if (!user || !(await verifyWerkzeugHash(user.password_hash, String(req.body.password)))) return errorResponse(res, "auth.invalid_credentials", "Invalid email or password.", 401);
+  if (!user || !(await verifyPasswordHash(user.password_hash, String(req.body.password)))) return errorResponse(res, "auth.invalid_credentials", "Invalid email or password.", 401);
   if (user.status !== "active") return errorResponse(res, user.status === "suspended" ? "auth.account_suspended" : user.status === "banned" ? "auth.account_banned" : "auth.account_inactive", user.status === "suspended" ? "Your account has been suspended. Please contact support." : user.status === "banned" ? "Your account has been banned." : "Your account is not active.", 403);
   user.login_count = (user.login_count || 0) + 1;
   user.last_active_at = new Date();
@@ -93,14 +93,14 @@ async function updateAppLock(req, res) {
 async function verifyAppLock(req, res) {
   if (!req.user.pin_hash) return res.json({ verified: true, message: "App lock is not enabled." });
   if (!requiredBody(req.body) || !req.body.pin) return errorResponse(res, "request.body_required", "Request body is required.", 400);
-  if (await verifyWerkzeugHash(req.user.pin_hash, String(req.body.pin).trim())) return res.json({ verified: true, message: "PIN verified successfully." });
+  if (await verifyPasswordHash(req.user.pin_hash, String(req.body.pin).trim())) return res.json({ verified: true, message: "PIN verified successfully." });
   return errorResponse(res, "auth.invalid_pin", "Invalid PIN.", 401);
 }
 
 async function deleteAccount(req, res) {
   if (req.user.role === "admin") return errorResponse(res, "auth.admin_delete_forbidden", "Admin accounts cannot be deleted.", 403);
   if (!requiredBody(req.body) || !req.body.password) return errorResponse(res, "request.body_required", "Request body is required.", 400);
-  if (!(await verifyWerkzeugHash(req.user.password_hash, String(req.body.password)))) return errorResponse(res, "auth.invalid_credentials", "Invalid email or password.", 401);
+  if (!(await verifyPasswordHash(req.user.password_hash, String(req.body.password)))) return errorResponse(res, "auth.invalid_credentials", "Invalid email or password.", 401);
   await createPrivacyRequest(req.user, "delete");
   return res.status(202).json({ message: "Your account deletion request has been submitted. An administrator will process it shortly.", message_code: "privacy.delete_request_submitted" });
 }
@@ -136,7 +136,7 @@ async function resetPassword(req, res) {
   if (!requiredBody(req.body) || !requiredString(req.body.token, 10) || !requiredString(req.body.password, 6, 128)) return validationErrors(res, [["validation.invalid_payload", "token and a password between 6 and 128 characters are required."]]);
   const tokens = await PasswordResetToken.find({ used_at: null, expires_at: { $gt: new Date() } }).sort({ created_at: -1 });
   let matched = null;
-  for (const entry of tokens) if (await verifyWerkzeugHash(entry.token_hash, req.body.token)) { matched = entry; break; }
+  for (const entry of tokens) if (await verifyPasswordHash(entry.token_hash, req.body.token)) { matched = entry; break; }
   if (!matched) return errorResponse(res, "auth.invalid_reset_token", "Invalid or expired reset token.", 400);
   const user = await UserProfile.findOne({ id: matched.user_id });
   if (!user) return errorResponse(res, "auth.user_not_found", "User not found.", 404);
