@@ -1,9 +1,10 @@
 const crypto = require("node:crypto");
 const path = require("node:path");
 const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
-// Loading .env here keeps configuration out of controllers and makes the same
-// values available to the HTTP server, migration scripts, and test process.
+// The shared configuration module loads .env once and exposes both runtime
+// settings and MongoDB lifecycle helpers to the rest of the API.
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const boolean = (value, fallback = false) => {
@@ -20,8 +21,8 @@ const configuredSecret = process.env.JWT_SECRET_KEY;
 const jwtSecret = configuredSecret || crypto.randomBytes(48).toString("base64url");
 
 if (!configuredSecret) {
-  // This mirrors the legacy service's safe development fallback. Production
-  // must provide a stable secret or all sessions will be invalidated on restart.
+  // Production must provide a stable secret so sessions remain valid after
+  // a restart. The generated fallback keeps local development convenient.
   console.warn("JWT_SECRET_KEY is not configured; using an ephemeral signing key.");
 }
 
@@ -65,4 +66,22 @@ function validateServerConfig() {
   }
 }
 
-module.exports = { config, validateServerConfig };
+// The connection is kept here with configuration so every caller uses the
+// same URI, timeout, and connection-pool settings.
+async function connectDatabase() {
+  if (!config.mongodbUri) {
+    throw new Error("MONGODB_URI must be configured before connecting to MongoDB.");
+  }
+
+  await mongoose.connect(config.mongodbUri, {
+    serverSelectionTimeoutMS: 10_000,
+    maxPoolSize: 10,
+  });
+  return mongoose.connection;
+}
+
+async function disconnectDatabase() {
+  if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
+}
+
+module.exports = { config, validateServerConfig, connectDatabase, disconnectDatabase };

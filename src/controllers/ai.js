@@ -1,5 +1,5 @@
 const { AIHealthAssistantSession, SymptomTrackingLog } = require("../models");
-const { config } = require("../config/env");
+const { config } = require("../config/db");
 const { errorResponse, validationErrors } = require("../utils/response");
 const { serialize } = require("../utils/serialize");
 

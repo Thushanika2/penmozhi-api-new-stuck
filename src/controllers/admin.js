@@ -1,5 +1,5 @@
 const { AdminActionLog, AIHealthAssistantSession, Counter, PrivacyRequest, PushSubscription, Subscription, UserConsent, UserProfile, WearableConnection } = require("../models");
-const { config } = require("../config/env");
+const { config } = require("../config/db");
 const { createPrivacyRequest, deleteUserAccount } = require("../services/privacy");
 const { hashPassword } = require("../utils/password");
 const { publicUser, serialize } = require("../utils/serialize");

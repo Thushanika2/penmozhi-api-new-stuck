@@ -1,6 +1,6 @@
 const crypto = require("node:crypto");
 const { CycleHistoryLog, SharedConnection, SharingInvite, UserProfile } = require("../models");
-const { config } = require("../config/env");
+const { config } = require("../config/db");
 const { computeCycleInsights } = require("../services/cyclePrediction");
 const { recordConsent } = require("../services/privacy");
 const { hashPassword, verifyPasswordHash } = require("../utils/password");

@@ -1,5 +1,5 @@
 const crypto = require("node:crypto");
-const { config } = require("../config/env");
+const { config } = require("../config/db");
 const { HealthProfile, PasswordResetToken, PCOSDisorderStatus, UserProfile } = require("../models");
 const { createPrivacyRequest, recordSignupConsents } = require("../services/privacy");
 const { addDays, parseDateOnly } = require("../utils/dates");

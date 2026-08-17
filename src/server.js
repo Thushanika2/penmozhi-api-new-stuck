@@ -1,6 +1,5 @@
 const { createApp } = require("./app");
-const { config, validateServerConfig } = require("./config/env");
-const { connectDatabase } = require("./config/database");
+const { config, validateServerConfig, connectDatabase } = require("./config/db");
 
 async function start() {
   validateServerConfig();

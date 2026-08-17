@@ -1,5 +1,5 @@
 const { UserProfile } = require("../models");
-const { config } = require("../config/env");
+const { config } = require("../config/db");
 const { verifyToken } = require("../utils/jwt");
 const { errorResponse } = require("../utils/response");
 
