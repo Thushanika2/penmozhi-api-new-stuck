@@ -103,9 +103,12 @@ if (require.main === module && !process.env.VERCEL) {
   });
 }
 
-// CommonJS export keeps this project compatible with its existing route and
-// test files while also exposing the app directly to hosting platforms.
+// Attach local-test helpers before the final export so Vercel sees the
+// Express function itself as the module's CommonJS export.
+app.app = app;
+app.createApp = createApp;
+app.startServer = startServer;
+
+// CommonJS export keeps this project compatible with local Node startup and
+// lets Vercel use the Express function directly as its serverless handler.
 module.exports = app;
-module.exports.app = app;
-module.exports.createApp = createApp;
-module.exports.startServer = startServer;
