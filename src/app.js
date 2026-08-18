@@ -23,6 +23,9 @@ function createApp() {
     next();
   });
 
+  app.get("/", (_req, res) => res.json({ name: "Penmozhi API", status: "ok", health: "/api/health" }));
+  app.get("/api", (_req, res) => res.json({ name: "Penmozhi API", status: "ok", health: "/api/health" }));
+
   // Vercel can invoke the exported app before a module-level database
   // connection has finished. Wait for the shared connection promise and turn
   // startup failures into a controlled response instead of a function crash.
