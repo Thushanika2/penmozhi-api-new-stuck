@@ -23,6 +23,21 @@ function createApp() {
     next();
   });
 
+  // Vercel can invoke the exported app before a module-level database
+  // connection has finished. Wait for the shared connection promise and turn
+  // startup failures into a controlled response instead of a function crash.
+  if (process.env.VERCEL) {
+    app.use(async (_req, res, next) => {
+      try {
+        await connectDatabase(config.mongodbUri);
+        return next();
+      } catch (error) {
+        console.error("Vercel database initialization failed:", error);
+        return errorResponse(res, "server.database_unavailable", "The database is temporarily unavailable.", 503);
+      }
+    });
+  }
+
   app.get("/api/health", async (_req, res) => {
     if (isDatabaseConnected()) return res.json({ status: "ok", database: "connected" });
     return res.status(503).json({ status: "error", database: "disconnected", error: "Database connection failed.", detail: "MongoDB is not connected." });
@@ -85,13 +100,6 @@ async function startServer() {
 if (require.main === module && !process.env.VERCEL) {
   startServer().catch(() => {
     process.exitCode = 1;
-  });
-}
-
-// Vercel can use the exported Express app and connect during cold start.
-if (process.env.VERCEL) {
-  connectDatabase(config.mongodbUri).catch((error) => {
-    console.error("Database connection error:", error);
   });
 }
 

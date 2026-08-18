@@ -1,10 +1,23 @@
 const crypto = require("node:crypto");
+const dns = require("node:dns");
 const path = require("node:path");
 const dotenv = require("dotenv");
 
 // Load environment variables once so configuration is available consistently
 // to the server, controllers, middleware, and migration scripts.
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
+// Some local networks advertise an IPv6 router DNS server that refuses the
+// MongoDB SRV lookup. Use public DNS during development, while leaving hosted
+// environments on their platform-provided resolver by default.
+const configuredDnsServers = process.env.MONGODB_DNS_SERVERS;
+const defaultDnsServers = process.env.NODE_ENV === "production" ? "" : "8.8.8.8,8.8.4.4";
+const dnsServers = (configuredDnsServers || defaultDnsServers)
+  .split(",")
+  .map((server) => server.trim())
+  .filter(Boolean);
+
+if (dnsServers.length) dns.setServers(dnsServers);
 
 const boolean = (value, fallback = false) => {
   if (value === undefined || value === null || value === "") return fallback;
